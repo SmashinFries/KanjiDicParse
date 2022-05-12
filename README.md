@@ -1,4 +1,4 @@
-# KanjiDicParse
+# jpn-dictionaries-cli
 This repo is currently just for experimenting with xml parsing and is not complete. My end goal is to store the data in a SQLite database.
 
 I don't often use Python, so I believe this could be good practice.
