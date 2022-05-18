@@ -1,43 +1,38 @@
-import xml.etree.ElementTree as ET
-import functions
+from helpers import clearConsole, locate_dictionaries, menu_title, select_input
+from XML2JSON import xml2json
+from termcolor import colored
+from os import path, mkdir
+from edrdgDownload import download_menu
 
-xmlFile = 'kanjidic2.xml'
+def main_menu():
+    while True:
+        clearConsole()
+        available = locate_dictionaries()
 
-def parseXML():
-    tree = ET.parse(xmlFile);
-    root = tree.getroot();
-    return root
-    # print(root[1][0].text);
+        print(menu_title('jpn-dictionaries-cli', 'cyan'))
+        print("Dictionaries Found:")
+        print(f"kanjidic2: {colored(available['kanji'], color='green' if available['kanji'] else 'red')}")
+        print(f"JMdict_e: {colored(available['vocab'], color='green' if available['vocab'] else 'red')}\n")
+        
+        print(colored("Select an option:", on_color='on_white'))
+        print(f"""
+        {colored('1', color='magenta')} : Convert XML to JSON
+        {colored('2', color='green')} : Navigate Dictionary
+        {colored('3', color='blue')} : Download XML Dictionaries
+        {colored('0', color='red')} : Exit"""
+        )
 
+        choice = select_input()
+        if choice == '1':
+            xml2json.xml2json(available)
+        elif choice == '2':
+            print("Chose 2")
+        elif choice == '3':
+            clearConsole()
+            download_menu()
+        elif choice == '0':
+            clearConsole()
+            exit()
 
-def getAll(amount:int):
-    root = parseXML()
-    data = []
-    for i in range(amount+1):
-        character = root[i]
-        if (i == 0):
-            continue
-        else:
-            literal = functions.getLiteral(character)
-            codepoints = functions.getCpRad(character, 'codepoint', 'cp_value', 'cp_type')
-            radicals = functions.getCpRad(character, 'radical', 'rad_value', 'rad_type')
-            misc = functions.getMisc(character)
-
-            data.append({'literal': literal, 'codepoints': codepoints, 'radicals': radicals, 'misc': misc})
-    if (amount == 1):
-        print(data[0])
-    else:
-        print(data)
-
-def getKanji(element:int):
-    root = parseXML()
-    character = root[element]
-
-    literal = functions.getLiteral(character)
-    codepoints = functions.getCpRad(character, 'codepoint', 'cp_value', 'cp_type')
-    radicals = functions.getCpRad(character, 'radical', 'rad_value', 'rad_type')
-    misc = functions.getMisc(character)
-
-    print({'literal': literal, 'codepoints': codepoints, 'radicals': radicals, 'misc': misc})
-
-getKanji(6)
+if __name__ == "__main__":
+    main_menu()
