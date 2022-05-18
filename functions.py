@@ -11,13 +11,19 @@ def getLiteral(character:Element):
 
 # Simplified function of getCodePoints and getRadicals
 # Can extract parent tag children attrib and text
-def getCpRad(character:Element, parent:str, tag:str, attrib:str):
+def getCpRad(character:Element, parent:str, tag:str, attrib:str|None):
     data = []
     
     parent = character.find(parent)
-    child = parent.findall(tag)
-    for value in child:
-        data.append({'type':value.attrib[attrib], 'value':value.text})
+    if parent != None:
+        child = parent.findall(tag)
+        if attrib == None and child != None:
+            for item in child:
+                data.append(item.text)
+        else:
+            if child != None:
+                for value in child:
+                    data.append({'type':value.attrib[attrib], 'value':value.text})
 
     return data
 
@@ -58,3 +64,83 @@ def getMisc(character:Element):
     else:
         misc_data = None
     return misc_data
+
+def getDic(character:Element):
+    dictions = []
+
+    dic_number = character.find('dic_number')
+    if dic_number != None:
+        dic_ref = dic_number.findall('dic_ref')
+        if dic_ref:
+            for dic in dic_ref:
+                if (dic.attrib['dr_type'] == 'moro'):
+                    volume = dic.attrib.get('m_vol')
+                    page = dic.attrib.get('m_page')
+                    dictions.append({'type':dic.attrib['dr_type'], 'volume':volume, 'page':page, 'value':dic.text})
+                else:
+                    dictions.append({'type':dic.attrib['dr_type'], 'value':dic.text})
+
+    return dictions
+
+def getMeanings(rmgroup:Element):
+    meaning_elements = rmgroup.findall(".//meaning")
+    english_meanings = []
+    fr_meanings = []
+    es_meanings = []
+    pt_meanings = []
+    for meaning in meaning_elements:
+        if meaning.attrib:
+            if meaning.attrib['m_lang'] == 'fr':
+                fr_meanings.append(meaning.text)
+            elif meaning.attrib['m_lang'] == 'es':
+                es_meanings.append(meaning.text)
+            elif meaning.attrib['m_lang'] == 'pt':
+                pt_meanings.append(meaning.text)
+        else:
+            english_meanings.append(meaning.text)
+
+    meanings = {
+        'english': english_meanings,
+        'fr': fr_meanings,
+        'es': es_meanings,
+        'pt': pt_meanings
+    }
+
+    return meanings
+
+def getReadings(character:Element):
+    def getAllValues(elements:list[Element]):
+        values = []
+        for value in elements:
+            values.append(value.text)
+        return values
+    
+    # initialize variables
+    f_readings = None
+    meanings = None
+
+    reading_meaning = character.find('reading_meaning')
+    if reading_meaning != None:
+        rmgroup = reading_meaning.find('rmgroup')
+        
+        # foreign readings
+        pinyins = rmgroup.findall(".//reading/[@r_type='pinyin']")
+        korean_rs = rmgroup.findall(".//reading/[@r_type='korean_r']")
+        korean_hs = rmgroup.findall(".//reading/[@r_type='korean_h']")
+        vietnams = rmgroup.findall(".//reading/[@r_type='vietnam']")
+        ja_on = rmgroup.findall(".//reading/[@r_type='ja_on']")
+        ja_kun = rmgroup.findall(".//reading/[@r_type='ja_kun']")
+
+        # meanings
+        meanings = getMeanings(rmgroup)
+        
+        f_readings = {
+            'pinyin': getAllValues(pinyins),
+            'korean_r': getAllValues(korean_rs),
+            'korean_h': getAllValues(korean_hs),
+            'vietnam': getAllValues(vietnams),
+            'ja_on': getAllValues(ja_on),
+            'ja_kun': getAllValues(ja_kun)
+        }
+        
+    return {'readings':f_readings, 'meanings':meanings}
