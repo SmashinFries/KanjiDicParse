@@ -30,7 +30,7 @@ def download_xml(url:list):
     print(colored(" Successful! ", on_color='on_green'))
 
 def download_menu():
-    vocabUrl = 'http://ftp.edrdg.org/pub/Nihongo/JMdict_e.gz'
+    vocabUrl = 'http://ftp.edrdg.org/pub/Nihongo/JMdict_e_examp.gz'
     kanjiUrl = 'http://www.edrdg.org/kanjidic/kanjidic2.xml.gz'
 
     def isDownloaded(num:str, color:str, truthy:bool, message:str):
@@ -59,10 +59,10 @@ def download_menu():
         elif choice == '3':
             download_xml([vocabUrl])
         elif choice == '4':
-            if os.path.exists('./xml/kanjidic2.xml'):
-                os.remove('./xml/kanjidic2.xml')
-            if os.path.exists('./xml/JMdict_e.xml'):
-                os.remove('./xml/JMdict_e.xml')
+            if os.path.exists('./user_data/xml/kanjidic2.xml'):
+                os.remove('./user_data/xml/kanjidic2.xml')
+            if os.path.exists('./user_data/xml/JMdict_e_examp.xml'):
+                os.remove('./user_data/xml/JMdict_e_examp.xml')
             clearConsole()
             print(colored(" Removed! ", on_color='on_green'))
         elif choice == '0':
