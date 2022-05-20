@@ -3,6 +3,7 @@ from os import path, system, mkdir
 from pyfiglet import Figlet
 from termcolor import colored
 import xml.etree.ElementTree as ET
+from xml.dom.minidom import Element
 
 def parseXML(xmlFile:str):
     tree = ET.parse(xmlFile);
@@ -37,3 +38,6 @@ def locate_dictionaries():
         mkdir('./user_data/json/')
 
     return availability
+
+def getTotalAmount(root:Element):
+    return len(root)-1
