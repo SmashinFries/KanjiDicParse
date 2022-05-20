@@ -9,25 +9,25 @@ def main_menu():
         clearConsole()
         available = locate_dictionaries()
 
-        print(menu_title('jpn-dictionaries-cli', 'cyan'))
+        print(menu_title('JD-CLI', 'cyan'))
         print("Dictionaries Found:")
         print(f"kanjidic2: {colored(available['kanji'], color='green' if available['kanji'] else 'red')}")
-        print(f"JMdict_e: {colored(available['vocab'], color='green' if available['vocab'] else 'red')}\n")
+        print(f"JMdict_e_examp: {colored(available['vocab'], color='green' if available['vocab'] else 'red')}\n")
         
         print(colored("Select an option:", on_color='on_white'))
         print(f"""
         {colored('1', color='magenta')} : Convert XML to JSON
-        {colored('2', color='green')} : Navigate Dictionary
-        {colored('3', color='blue')} : Download XML Dictionaries
+        {colored('2', color='blue')} : Download XML Dictionaries
         {colored('0', color='red')} : Exit"""
         )
+        # {colored('2', color='green')} : Navigate Dictionary
 
         choice = select_input()
         if choice == '1':
             xml2json.xml2json(available)
+        # elif choice == '2':
+        #     print("Chose 2")
         elif choice == '2':
-            print("Chose 2")
-        elif choice == '3':
             clearConsole()
             download_menu()
         elif choice == '0':
