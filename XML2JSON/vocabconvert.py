@@ -1,14 +1,26 @@
 from os import system
-import platform
+import platform, json
 from xml.etree.ElementTree import Element
 import xml.etree.ElementTree as ET
 from termcolor import colored
 from collections import Counter
+from tqdm import tqdm
+
+from helpers import getTotalAmount
 
 def parseXML(xmlFile:str):
     tree = ET.parse(xmlFile);
     root = tree.getroot();
     return root
+
+def findIndex(id:int):
+    root = parseXML('./user_data/xml/JMdict_e_examp.xml')
+    count = 0
+    for elem in root:
+        count +=1
+        if elem[0].text == str(id):
+            print(count-1)
+            break
 
 def viewTree(root:Element, index:int):
     for tag in root[index]:
@@ -23,47 +35,92 @@ def checkKeys(tag:Element, obj:object):
     
     return obj
 
+def getKeRe(tag:Element, ke_obj:object, re_obj:object):
+    elements = ['ke_pri', 'ke_inf', 're_pri', 're_inf', 're_nokanji', 're_restr']
+    ke = ['ke_pri', 'ke_inf']
+    re = ['re_pri', 're_inf', 're_nokanji', 're_restr']
+    no_append = ['keb', 'reb']
+    for elem in elements:
+        if tag.tag == elem and tag.tag in ke:
+            ke_obj[elem].append(tag.text)
+        if tag.tag == elem and tag.tag in re:
+            re_obj[elem].append(tag.text)
+    
+    for elem in no_append:
+        if tag.tag == elem and elem == 'keb':
+            ke_obj[elem] = tag.text
+        if tag.tag == elem and elem == 'reb':
+            re_obj[elem] = tag.text
+
+def getSense(tag:Element):
+    lang_attrib = '{http://www.w3.org/XML/1998/namespace}lang'
+    def getExample(example_elem:Element):
+        example = {'source':{'id':None, 'text':None}, 'text': None, 'sentence': {'jpn':None, 'eng':None}}
+        for elem in example_elem:
+            if elem.tag == 'ex_srce':
+                example['source']['id'] = elem.text
+                example['source']['text'] = elem.attrib['exsrc_type']
+            if elem.tag == 'ex_text':
+                example['text'] = elem.text
+            if elem.tag == 'ex_sent' and elem.attrib[lang_attrib] == 'jpn':
+                example['sentence']['jpn'] = elem.text
+            if elem.tag == 'ex_sent' and elem.attrib[lang_attrib] == 'eng':
+                example['sentence']['eng'] = elem.text
+        return example
+        
+    sense_obj = {'pos':[], 'gloss':[], 'xref':[], 'ant':[], 'field':[], 'misc':[], 'lsource':[], 'dial':[], 'pri':[], 's_inf':[], 'example':None}
+    senses = ['pos', 'gloss', 'xref', 'ant', 'field', 'misc', 'lsource', 'dial', 'pri', 's_inf']
+    
+    for elem in tag:
+        # print(colored(f'{elem.tag}: {elem.text}', color='cyan'))
+        for sense in senses:
+            if elem.tag == sense:
+                if elem.tag == 'lsource':
+                    lsource = {'lang':elem.attrib[lang_attrib], 'text':elem.text, 'ls_wasei':True if 'ls_wasei' in elem.attrib else False}
+                    sense_obj['lsource'].append(lsource)
+                else:
+                    sense_obj[sense].append(elem.text)
+        if elem.tag == 'example':
+            example_obj = getExample(elem)
+            sense_obj['example'] = example_obj
+    
+    return sense_obj
+
 def getWord(root:Element, index:int):
     # Total entries: 196321
     # Entries start at root[0]
 
     id = root[index][0].text
-    data = {'id':id, 'k_ele':[], 'r_ele':[]}
+    data = {'id':int(id), 'k_ele':[], 'r_ele':[], 'sense':[]}
     for tag in root[index]:
         k_ele_obj = {'keb':None, 'ke_pri':[], 'ke_inf':[]}
         r_ele_obj = {'reb':None, 're_pri':[], 're_inf':[], 're_nokanji':[], 're_restr':[]}
-        for tag2 in tag:
-            # k_ele
-            if tag2.tag == 'keb':
-                k_ele_obj['keb'] = tag2.text
-            if tag2.tag == 'ke_pri':
-                k_ele_obj['ke_pri'].append(tag2.text)
-            if tag2.tag == 'ke_inf':
-                k_ele_obj['ke_inf'].append(tag2.text)
 
-            # r_ele
-            if tag2.tag == 'reb':
-                r_ele_obj['reb'] = tag2.text
-            if tag2.tag == 're_pri':
-                r_ele_obj['re_pri'].append(tag2.text)
-            if tag2.tag == 're_inf':
-                r_ele_obj['re_inf'].append(tag2.text)
-            if tag2.tag == 're_nokanji':
-                r_ele_obj['re_nokanji'].append(tag2.text)
-            if tag2.tag == 're_restr':
-                r_ele_obj['re_restr'].append(tag2.text)
+        for tag2 in tag:
+            getKeRe(tag2, k_ele_obj, r_ele_obj)
+                
+        if tag.tag == 'sense':
+            sense_obj = getSense(tag)
+            if sense_obj['pos']:
+                    data['sense'].append(sense_obj)
+
             
         if k_ele_obj['keb']:
             data['k_ele'].append(k_ele_obj)
         if r_ele_obj['reb']:
             data['r_ele'].append(r_ele_obj)
     
-    print(colored(f'\n{data}', color='blue'))
+    return data
 
-def vocab2JSON():
-    system('clear' if platform.system() == 'Linux' else 'cls')
-    root = parseXML('./user_data/xml/JMdict_e.xml')
-    getWord(root, 56171)
-
-# vocab2JSON()
-checkKeys(None)
+def writeVocabJSON():
+    vocab = []
+    root = parseXML('./user_data/xml/JMdict_e_examp.xml')
+    for entry in tqdm(range(getTotalAmount(root))):
+        item = getWord(root, entry)
+        vocab.append(item)
+    
+    with open('./user_data/json/vocab_dictV1.json', "w") as outfile:
+        json_vocab = json.dumps(vocab, indent=4, ensure_ascii=False)
+        outfile.write(json_vocab)
+    
+# findIndex(1014440)
