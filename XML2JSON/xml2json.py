@@ -17,12 +17,12 @@ def version_menu(dic:str):
         if choice == '1':
             print(colored("Parsing XML!\n", on_color='on_green'))
             writeJSON()
-            print(colored("\nSaved at: ./json/", on_color="on_cyan"))
+            print(colored("\nSaved at: ./user_data/json/", on_color="on_cyan"))
             print(colored("またね！", on_color="on_red"))
         elif choice == '2':
             print(colored("Parsing XML!\n", on_color='on_green'))
             writeJSON2()
-            print(colored("\nSaved at: ./json/", on_color="on_cyan"))
+            print(colored("\nSaved at: ./user_data/json/", on_color="on_cyan"))
             print(colored("またね！", on_color="on_red"))
         elif choice == '0':
             exit()
