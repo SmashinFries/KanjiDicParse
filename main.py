@@ -4,6 +4,25 @@ from termcolor import colored
 from os import path, mkdir
 from edrdgDownload import download_menu
 
+def convertType_menu(available):
+    while True:
+        clearConsole()
+        print(colored("Choose output type:", on_color='on_green'))
+        print(f"""
+        {colored('1', color='magenta')} : JSON
+        {colored('2', color='blue')} : SQLite
+        {colored('0', color='red')} : Go Back"""
+        )
+        # {colored('2', color='green')} : Navigate Dictionary
+
+        choice = select_input()
+        if choice == '1':
+            xml2json.xml2json(available)
+        elif choice == '2':
+            return
+        elif choice == '0':
+            return
+
 def main_menu():
     while True:
         clearConsole()
@@ -16,7 +35,7 @@ def main_menu():
         
         print(colored("Select an option:", on_color='on_white'))
         print(f"""
-        {colored('1', color='magenta')} : Convert XML to JSON
+        {colored('1', color='magenta')} : Convert XML
         {colored('2', color='blue')} : Download XML Dictionaries
         {colored('0', color='red')} : Exit"""
         )
@@ -24,7 +43,7 @@ def main_menu():
 
         choice = select_input()
         if choice == '1':
-            xml2json.xml2json(available)
+            convertType_menu(available)
         # elif choice == '2':
         #     print("Chose 2")
         elif choice == '2':
