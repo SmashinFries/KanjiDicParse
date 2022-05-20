@@ -4,7 +4,7 @@ import functions, json
 from tqdm import tqdm
 from termcolor import colored
 
-from helpers import clearConsole, select_input
+from helpers import clearConsole, select_input, getTotalAmount
 
 xmlFile = './user_data/xml/kanjidic2.xml'
 
@@ -13,10 +13,6 @@ def parseXML():
     root = tree.getroot();
     return root
     # print(root[1][0].text);
-
-def getTotalAmount():
-    root = parseXML()
-    return len(root)-1
 
 def getAll(amount:int):
     root = parseXML()
@@ -82,7 +78,7 @@ def getKanji(element:int, root:Element, array:bool):
 def writeJSON():
     kanjis = []
     root = parseXML()
-    for kanji in tqdm(range(getTotalAmount())):
+    for kanji in tqdm(range(getTotalAmount(root))):
         item = getKanji(kanji+1, root, True)
         kanjis.append(item)
 
@@ -105,27 +101,3 @@ def writeJSON2():
     with open('./user_data/json/kanji_dictV2.json', "w") as outfile:
         json_kanji = json.dumps(json_data, indent=4, ensure_ascii=False)
         outfile.write(json_kanji)
-
-def version_menu(dic:str):
-    clearConsole()
-    print(colored("Select Type of JSON", on_color='on_green'))
-    print(colored("\nDictionary: " + dic, color="cyan"))
-    print(f"""
-    {colored('1', color='magenta')} : Objects stored in a big list
-    {colored('2', color='green')} : No list, each object is keyed by kanji literal
-    {colored('0', color='red')} : Go Back"""
-    )
-
-    choice = select_input()
-    if choice == '1':
-        print(colored("Parsing XML!\n", on_color='on_green'))
-        writeJSON()
-        print(colored("\nSaved at: ./json/", on_color="on_cyan"))
-        print(colored("またね！", on_color="on_red"))
-    elif choice == '2':
-        print(colored("Parsing XML!\n", on_color='on_green'))
-        writeJSON2()
-        print(colored("\nSaved at: ./json/", on_color="on_cyan"))
-        print(colored("またね！", on_color="on_red"))
-    elif choice == '0':
-        exit()
