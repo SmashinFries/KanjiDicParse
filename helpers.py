@@ -22,20 +22,23 @@ def select_input():
 
 def locate_dictionaries():
     availability = {'kanji':False, 'vocab':False}
+    user_data = path.exists('./user_data/')
+    xml_folder = path.exists('./user_data/xml/')
+    kanji_dic = path.exists('./user_data/xml/kanjidic2.xml')
+    vocab_dic = path.exists('./user_data/xml/JMdict_e_examp.xml')
+    json_folder = path.exists('./user_data/json/')
+    sql_folder = path.exists('./user_data/sqlite/')
 
     # Check/Create user_data folder
-    if (path.exists('./user_data/')):
-        if (path.exists('./user_data/xml/')):
-            if (path.exists('./user_data/xml/kanjidic2.xml')):
-                availability['kanji'] = True
-            if (path.exists('./user_data/xml/JMdict_e_examp.xml')):
-                availability['vocab'] = True
-        else:
-            mkdir('./user_data/xml/')
-    else:
-        mkdir('./user_data/')
-        mkdir('./user_data/xml/')
-        mkdir('./user_data/json/')
+    if (kanji_dic):
+        availability['kanji'] = True
+    if (vocab_dic):
+        availability['vocab'] = True
+
+    mkdir('./user_data/') if not user_data else None
+    mkdir('./user_data/xml/') if not xml_folder else None
+    mkdir('./user_data/json/') if not json_folder else None
+    mkdir('./user_data/sqlite/') if not sql_folder else None
 
     return availability
 
