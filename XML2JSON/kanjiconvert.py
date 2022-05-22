@@ -94,7 +94,7 @@ def writeJSON2():
         res = dict1 | dict2
         return res
 
-    for kanji in tqdm(range(getTotalAmount()), colour='magenta'):
+    for kanji in tqdm(range(getTotalAmount(root)), colour='magenta'):
         item = getKanji(kanji+1, root, False)
         json_data = Merge(json_data, item)
 
