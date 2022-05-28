@@ -1,5 +1,7 @@
+from UI.menus import sql_menu
 from helpers import clearConsole, locate_dictionaries, menu_title, select_input
 from XML2JSON import xml2json
+from JSON2SQL import sqlconvert
 from termcolor import colored
 from os import path, mkdir
 from edrdgDownload import download_menu
@@ -19,7 +21,7 @@ def convertType_menu(available):
         if choice == '1':
             xml2json.xml2json(available)
         elif choice == '2':
-            return
+            sql_menu()
         elif choice == '0':
             return
 
